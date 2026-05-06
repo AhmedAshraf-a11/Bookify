@@ -3,7 +3,6 @@ import '../../core/theme/app_colors.dart';
 
 class BookCard extends StatelessWidget {
   final String title;
-  final String? author;
   final int pages;
   final String description;
   final bool isFavorite;
@@ -17,7 +16,6 @@ class BookCard extends StatelessWidget {
   const BookCard({
     super.key,
     required this.title,
-    this.author,
     required this.pages,
     required this.description,
     this.isFavorite = false,
@@ -124,7 +122,7 @@ class BookCard extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 4),
                     if (onEditPressed != null)
                       IconButton(
                         constraints: const BoxConstraints(),
@@ -165,14 +163,6 @@ class BookCard extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 6),
-                if (author != null && author!.isNotEmpty)
-                  Text(
-                    'Author: $author',
-                    style: const TextStyle(
-                      color: Color(0xFFA8ADBA),
-                      fontSize: 12,
-                    ),
-                  ),
                 Text(
                   'Pages: $pages',
                   style: const TextStyle(

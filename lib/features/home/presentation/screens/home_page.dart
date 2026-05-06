@@ -50,59 +50,94 @@ class _HomePageContent extends StatelessWidget {
         backgroundColor: AppColors.surface,
         body: BlocBuilder<HomeCubit, HomeState>(
           builder: (context, state) {
-            return Column(
-              children: [
-                Container(
-                  color: AppColors.primary,
-                  child: SafeArea(
-                    bottom: false,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Column(
-                        children: [
-                          const SizedBox(height: 16),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Bookify',
+            return RefreshIndicator(
+              onRefresh: () {
+                return context.read<HomeCubit>().refreshHomeData();
+              },
+              child: Column(
+                children: [
+                  Container(
+                    color: AppColors.primary,
+                    child: SafeArea(
+                      bottom: false,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: Column(
+                          children: [
+                            const SizedBox(height: 16),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Bookify',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                IconButton(
+                                  onPressed: () {
+                                    context.go(AppRoutePaths.profile);
+                                  },
+                                  icon: const Icon(
+                                    Icons.people,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            const Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                'Good Evening, User\nkeep reading, you are doing great!',
                                 style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
+                                  fontSize: 14,
+                                  color: Colors.white70,
                                 ),
-                              ),
-                              IconButton(
-                                onPressed: () {
-                                  context.go(AppRoutePaths.profile);
-                                },
-                                icon: const Icon(
-                                  Icons.people,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 16),
-                          const Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              'Good Evening, User\nkeep reading, you are doing great!',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.white70,
                               ),
                             ),
-                          ),
-                          const SizedBox(height: 16),
-                          if (state is HomeLoading)
-                            const SizedBox(
-                              height: 180,
-                              child: Center(
-                                child: CircularProgressIndicator(
-                                  color: Colors.white,
+                            const SizedBox(height: 16),
+                            if (state is HomeLoading)
+                              const SizedBox(
+                                height: 180,
+                                child: Center(
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                  ),
                                 ),
+                              )
+                            else if (state is HomeError)
+                              _ErrorCard(
+                                message: state.message,
+                                onRetry: () =>
+                                    context.read<HomeCubit>().loadHomeData(),
+                              )
+                            else if (state is HomeLoaded)
+                              ProgressCard(
+                                completed: state.totalProgress.completed,
+                                totalFavorites:
+                                    state.totalProgress.totalFavorites,
+                                percentage: state.totalProgress.percentage,
                               ),
+                            const SizedBox(height: 20),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 8),
+                          if (state is HomeLoading)
+                            const Padding(
+                              padding: EdgeInsets.only(top: 24),
+                              child: Center(child: CircularProgressIndicator()),
                             )
                           else if (state is HomeError)
                             _ErrorCard(
@@ -111,63 +146,33 @@ class _HomePageContent extends StatelessWidget {
                                   context.read<HomeCubit>().loadHomeData(),
                             )
                           else if (state is HomeLoaded)
-                            ProgressCard(
-                              completed: state.totalProgress.completed,
-                              totalFavorites:
-                                  state.totalProgress.totalFavorites,
-                              percentage: state.totalProgress.percentage,
+                            Column(
+                              children: [
+                                WantToReadSection(
+                                  currentlyReading: state.currentlyReading,
+                                  onBookTap: (bookId) {
+                                    context.push(
+                                      '${AppRoutePaths.home}/book-details/$bookId',
+                                    );
+                                  },
+                                ),
+                                const SizedBox(height: 16),
+                                FavoritesSection(
+                                  favorites: state.favorites,
+                                  onBookTap: (bookId) {
+                                    context.push(
+                                      '${AppRoutePaths.home}/book-details/$bookId',
+                                    );
+                                  },
+                                ),
+                              ],
                             ),
-                          const SizedBox(height: 20),
                         ],
                       ),
                     ),
                   ),
-                ),
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 8),
-                        if (state is HomeLoading)
-                          const Padding(
-                            padding: EdgeInsets.only(top: 24),
-                            child: Center(child: CircularProgressIndicator()),
-                          )
-                        else if (state is HomeError)
-                          _ErrorCard(
-                            message: state.message,
-                            onRetry: () =>
-                                context.read<HomeCubit>().loadHomeData(),
-                          )
-                        else if (state is HomeLoaded)
-                          Column(
-                            children: [
-                              WantToReadSection(
-                                currentlyReading: state.currentlyReading,
-                                onBookTap: (bookId) {
-                                  context.push(
-                                    '${AppRoutePaths.home}/book-details/$bookId',
-                                  );
-                                },
-                              ),
-                              const SizedBox(height: 16),
-                              FavoritesSection(
-                                favorites: state.favorites,
-                                onBookTap: (bookId) {
-                                  context.push(
-                                    '${AppRoutePaths.home}/book-details/$bookId',
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
+                ],
+              ),
             );
           },
         ),

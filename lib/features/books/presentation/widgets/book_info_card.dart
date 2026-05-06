@@ -99,11 +99,6 @@ class BookInfoCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  book.createdBy,
-                  style: const TextStyle(color: Colors.white70, fontSize: 16),
-                ),
-                const SizedBox(height: 8),
-                Text(
                   book.description,
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
@@ -124,15 +119,26 @@ class BookInfoCard extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text('Reading Progress', style: TextStyle(color: Colors.white, fontSize: 12)),
-                        Text('${progress?.percentage ?? 0}%', style: const TextStyle(color: AppColors.secondary, fontSize: 12)),
+                        const Text(
+                          'Reading Progress',
+                          style: TextStyle(color: Colors.white, fontSize: 12),
+                        ),
+                        Text(
+                          '${progress?.percentage ?? 0}%',
+                          style: const TextStyle(
+                            color: AppColors.secondary,
+                            fontSize: 12,
+                          ),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 4),
                     LinearProgressIndicator(
                       value: progressValue,
                       backgroundColor: AppColors.lightGrey,
-                      valueColor: const AlwaysStoppedAnimation<Color>(AppColors.secondary),
+                      valueColor: const AlwaysStoppedAnimation<Color>(
+                        AppColors.secondary,
+                      ),
                     ),
                   ],
                 ),
@@ -140,14 +146,19 @@ class BookInfoCard extends StatelessWidget {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: book.pdf != null ? () {
-                      context.push('${AppRoutePaths.library}/pdf-viewer', extra: {
-                        'pdfUrl': book.pdf!.secureUrl,
-                        'bookId': book.id,
-                        'totalPages': book.totalPages,
-                        'lastPage': progress?.currentPage ?? 0,
-                      });
-                    } : null,
+                    onPressed: book.pdf != null
+                        ? () {
+                            context.push(
+                              '${AppRoutePaths.library}/pdf-viewer',
+                              extra: {
+                                'pdfUrl': book.pdf!.secureUrl,
+                                'bookId': book.id,
+                                'totalPages': book.totalPages,
+                                'lastPage': progress?.currentPage ?? 0,
+                              },
+                            );
+                          }
+                        : null,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       foregroundColor: Colors.black,

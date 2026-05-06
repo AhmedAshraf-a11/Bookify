@@ -4,31 +4,6 @@ import 'package:bookify/features/profile/data/repositories/profile_remote_reposi
 import 'package:equatable/equatable.dart';
 import '../../data/models/profile_models.dart';
 
-// Events
-abstract class ProfileEvent extends Equatable {
-  const ProfileEvent();
-
-  @override
-  List<Object?> get props => [];
-}
-
-class LoadProfile extends ProfileEvent {
-  const LoadProfile();
-}
-
-class UpdateProfileRequested extends ProfileEvent {
-  final UpdateProfileRequestModel request;
-
-  const UpdateProfileRequested(this.request);
-
-  @override
-  List<Object?> get props => [request];
-}
-
-class DeleteProfileRequested extends ProfileEvent {
-  const DeleteProfileRequested();
-}
-
 // States
 abstract class ProfileState extends Equatable {
   const ProfileState();

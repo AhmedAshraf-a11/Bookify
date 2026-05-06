@@ -6,54 +6,6 @@ import '../../../../../core/network/api_exception.dart';
 import '../../../../../core/network/auth_session.dart';
 import '../../../books/data/models/books_models.dart';
 
-// Events
-abstract class LibraryEvent extends Equatable {
-  const LibraryEvent();
-
-  @override
-  List<Object?> get props => [];
-}
-
-class LoadLibraryBooks extends LibraryEvent {
-  final String? category;
-  final int page;
-  final int limit;
-
-  const LoadLibraryBooks({this.category, this.page = 1, this.limit = 10});
-
-  @override
-  List<Object?> get props => [category, page, limit];
-}
-
-class LoadMoreLibraryBooks extends LibraryEvent {
-  final String? category;
-  final int page;
-  final int limit;
-
-  const LoadMoreLibraryBooks({this.category, this.page = 1, this.limit = 10});
-
-  @override
-  List<Object?> get props => [category, page, limit];
-}
-
-class RefreshLibraryBooks extends LibraryEvent {
-  final String? category;
-
-  const RefreshLibraryBooks({this.category});
-
-  @override
-  List<Object?> get props => [category];
-}
-
-class DeleteBook extends LibraryEvent {
-  final String bookId;
-
-  const DeleteBook({required this.bookId});
-
-  @override
-  List<Object?> get props => [bookId];
-}
-
 // States
 abstract class LibraryState extends Equatable {
   const LibraryState();

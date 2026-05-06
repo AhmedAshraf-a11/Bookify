@@ -3,64 +3,6 @@ import 'package:equatable/equatable.dart';
 import '../../data/models/books_models.dart';
 import '../../data/repositories/books_remote_repository.dart';
 
-// Events
-abstract class BooksEvent extends Equatable {
-  const BooksEvent();
-
-  @override
-  List<Object?> get props => [];
-}
-
-class LoadBooksByCategory extends BooksEvent {
-  final String? category;
-  final int page;
-  final int limit;
-
-  const LoadBooksByCategory({this.category, this.page = 1, this.limit = 10});
-
-  @override
-  List<Object?> get props => [category, page, limit];
-}
-
-class AddBookRequested extends BooksEvent {
-  final AddBookRequestModel request;
-  final String? imagePath;
-  final String? pdfPath;
-
-  const AddBookRequested({required this.request, this.imagePath, this.pdfPath});
-
-  @override
-  List<Object?> get props => [request, imagePath, pdfPath];
-}
-
-class EditBookRequested extends BooksEvent {
-  final String bookId;
-  final EditBookRequestModel request;
-
-  const EditBookRequested({required this.bookId, required this.request});
-
-  @override
-  List<Object?> get props => [bookId, request];
-}
-
-class DeleteBookRequested extends BooksEvent {
-  final String bookId;
-
-  const DeleteBookRequested({required this.bookId});
-
-  @override
-  List<Object?> get props => [bookId];
-}
-
-class GetBookRequested extends BooksEvent {
-  final String bookId;
-
-  const GetBookRequested({required this.bookId});
-
-  @override
-  List<Object?> get props => [bookId];
-}
-
 // States
 abstract class BooksState extends Equatable {
   const BooksState();

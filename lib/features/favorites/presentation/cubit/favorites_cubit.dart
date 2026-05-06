@@ -4,36 +4,6 @@ import '../../../home/data/models/home_models.dart';
 import '../../data/repositories/favorites_remote_repository.dart';
 import '../../../home/data/repo/home_remote_repository.dart';
 
-// Events
-abstract class FavoritesEvent extends Equatable {
-  const FavoritesEvent();
-
-  @override
-  List<Object?> get props => [];
-}
-
-class LoadFavorites extends FavoritesEvent {
-  const LoadFavorites();
-}
-
-class AddToFavorites extends FavoritesEvent {
-  final String bookId;
-
-  const AddToFavorites(this.bookId);
-
-  @override
-  List<Object?> get props => [bookId];
-}
-
-class RemoveFromFavorites extends FavoritesEvent {
-  final String bookId;
-
-  const RemoveFromFavorites(this.bookId);
-
-  @override
-  List<Object?> get props => [bookId];
-}
-
 // States
 abstract class FavoritesState extends Equatable {
   const FavoritesState();

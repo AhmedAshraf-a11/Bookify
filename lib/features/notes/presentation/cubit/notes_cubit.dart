@@ -3,52 +3,6 @@ import 'package:equatable/equatable.dart';
 import '../../../../core/utils/app_repositories.dart';
 import '../../data/models/notes_models.dart';
 
-// Events
-abstract class NotesEvent extends Equatable {
-  const NotesEvent();
-
-  @override
-  List<Object?> get props => [];
-}
-
-class LoadBookNotes extends NotesEvent {
-  final String bookId;
-
-  const LoadBookNotes(this.bookId);
-
-  @override
-  List<Object?> get props => [bookId];
-}
-
-class AddNoteRequested extends NotesEvent {
-  final String bookId;
-  final AddNoteRequestModel request;
-
-  const AddNoteRequested({required this.bookId, required this.request});
-
-  @override
-  List<Object?> get props => [bookId, request];
-}
-
-class UpdateNoteRequested extends NotesEvent {
-  final String noteId;
-  final UpdateNoteRequestModel request;
-
-  const UpdateNoteRequested({required this.noteId, required this.request});
-
-  @override
-  List<Object?> get props => [noteId, request];
-}
-
-class DeleteNoteRequested extends NotesEvent {
-  final String noteId;
-
-  const DeleteNoteRequested(this.noteId);
-
-  @override
-  List<Object?> get props => [noteId];
-}
-
 // States
 abstract class NotesState extends Equatable {
   const NotesState();

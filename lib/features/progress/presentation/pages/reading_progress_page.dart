@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../core/app_repositories.dart';
+import '../../../../core/utils/app_repositories.dart';
 import '../widgets/pdf_reader_widget.dart';
-import '../bloc/reading_progress_cubit.dart';
+import '../cubit/reading_progress_cubit.dart';
 
 class ReadingProgressPage extends StatefulWidget {
   const ReadingProgressPage({super.key, required this.bookId});

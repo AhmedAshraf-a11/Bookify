@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
-import 'package:bookify/core/app_repositories.dart';
+import 'package:bookify/core/utils/app_repositories.dart';
 import 'package:equatable/equatable.dart';
-import '../../../../../core/app_auth_session.dart'; // Import for appAuthSession
+import '../../../../core/utils/app_auth_session.dart'; // Import for appAuthSession
 import '../../data/models/auth_models.dart';
 import '../../data/repositories/auth_remote_repository.dart';
 

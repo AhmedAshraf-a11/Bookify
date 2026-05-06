@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../progress/data/models/progress_models.dart';
-import '../../../../core/app_repositories.dart';
+import '../../../../core/utils/app_repositories.dart';
 
 class PdfViewerPage extends StatefulWidget {
   const PdfViewerPage({

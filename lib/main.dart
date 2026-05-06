@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'core/app_auth_session.dart';
-import 'core/app_repositories.dart';
+import 'core/utils/app_auth_session.dart';
+import 'core/utils/app_repositories.dart';
 import 'core/network/api_client.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
@@ -28,18 +28,17 @@ class BookifyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (_) => AuthCubit()),
-        BlocProvider(create: (_) => HomeCubit()..loadHomeData()),
+        BlocProvider(create: (_) => HomeCubit()),
         BlocProvider(
           create: (_) =>
-              BooksCubit(booksRemoteRepository: booksRemoteRepository)
-                ..loadBooks(),
+              BooksCubit(booksRemoteRepository: booksRemoteRepository),
         ),
         BlocProvider(create: (_) => LibraryCubit(authSession: appAuthSession)),
         BlocProvider(
           create: (_) => FavoritesCubit(
             favoritesRemoteRepository: favoritesRemoteRepository,
             homeRemoteRepository: homeRemoteRepository,
-          )..loadFavorites(),
+          ),
         ),
         BlocProvider(create: (_) => NotesCubit()),
         BlocProvider(
@@ -47,7 +46,7 @@ class BookifyApp extends StatelessWidget {
             ProfileRemoteRepository(
               apiClient: ApiClient(session: appAuthSession),
             ),
-          )..loadProfile(),
+          ),
         ),
       ],
       child: MaterialApp.router(

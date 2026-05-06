@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../../features/auth/presentation/pages/login_screen.dart';
 import '../../features/auth/presentation/pages/sign_up_screen.dart';
 import '../../features/auth/presentation/pages/splash_screen.dart';
-import '../app_auth_session.dart';
+import '../utils/app_auth_session.dart';
 import '../../features/books/presentation/pages/edit_book_screen.dart';
 import '../../features/home/presentation/screens/home_page.dart';
 import '../../features/books/presentation/pages/book_details_page.dart';

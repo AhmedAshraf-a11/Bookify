@@ -1,5 +1,5 @@
 import 'package:bloc/bloc.dart';
-import 'package:bookify/core/app_repositories.dart';
+import 'package:bookify/core/utils/app_repositories.dart';
 import 'package:bookify/features/profile/data/repositories/profile_remote_repository.dart';
 import 'package:equatable/equatable.dart';
 import '../../data/models/profile_models.dart';

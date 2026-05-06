@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 
 class DeleteConfirmationDialog extends StatelessWidget {
-  const DeleteConfirmationDialog({
-    required this.onConfirmed,
-    super.key,
-  });
+  const DeleteConfirmationDialog({required this.onConfirmed, super.key});
 
   final VoidCallback onConfirmed;
 
@@ -12,10 +9,7 @@ class DeleteConfirmationDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
       backgroundColor: const Color(0xFF1A1D29),
-      title: const Text(
-        'Delete Book',
-        style: TextStyle(color: Colors.white),
-      ),
+      title: const Text('Delete Book', style: TextStyle(color: Colors.white)),
       content: const Text(
         'Are you sure you want to delete this book? This action cannot be undone.',
         style: TextStyle(color: Colors.white70),
@@ -29,10 +23,7 @@ class DeleteConfirmationDialog extends StatelessWidget {
           ),
         ),
         TextButton(
-          onPressed: () {
-            Navigator.of(context).pop();
-            onConfirmed();
-          },
+          onPressed: onConfirmed,
           child: const Text('Delete', style: TextStyle(color: Colors.red)),
         ),
       ],

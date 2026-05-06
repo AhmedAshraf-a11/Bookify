@@ -1,6 +1,6 @@
-import '../../../core/network/api_client.dart';
-import 'datasources/notes_remote_endpoints.dart';
-import 'models/notes_models.dart';
+import '../../../../core/network/api_client.dart';
+import '../datasources/notes_remote_endpoints.dart';
+import '../models/notes_models.dart';
 
 class NotesRemoteRepository {
   const NotesRemoteRepository({required ApiClient apiClient})

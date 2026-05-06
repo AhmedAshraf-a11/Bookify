@@ -59,4 +59,11 @@ class BooksRemoteRepository {
     );
     return GetBooksByCategoryResponseModel.fromJson(json);
   }
+
+  Future<GetBooksByCategoryResponseModel> getAllBooks() async {
+    final json = await _apiClient.get(
+      BooksRemoteEndpoints.getBooksByCategory(),
+    );
+    return GetBooksByCategoryResponseModel.fromJson(json);
+  }
 }

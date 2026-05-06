@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/router/app_router.dart';
-import '../../../../core/app_auth_session.dart';
+import '../../../../core/utils/app_auth_session.dart';
+import '../../../../core/utils/app_repositories.dart';
 import '../../../../shared/widgets/book_card.dart';
+import '../../../favorites/presentation/cubit/favorites_cubit.dart';
 import '../cubit/library_cubit.dart';
 import '../widgets/category_filter_chips.dart';
 import '../widgets/delete_confirmation_dialog.dart';
@@ -13,19 +15,33 @@ class LibraryScreen extends StatelessWidget {
 
   static const List<String> _categories = [
     'All',
-    'sports',
-    'religion',
-    'horror',
-    'eduction',
-    'other',
+    "sports",
+    "religion",
+    "horror",
+    "eduction",
+    "other",
   ];
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) =>
-          LibraryCubit(authSession: appAuthSession)
-            ..loadLibraryBooks(category: null),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => LibraryCubit(
+            authSession: appAuthSession,
+            onFavoritesRefresh: () {
+              // This will be called when LibraryCubit wants to refresh favorites
+              context.read<FavoritesCubit>().loadFavorites();
+            },
+          ),
+        ),
+        BlocProvider(
+          create: (context) => FavoritesCubit(
+            favoritesRemoteRepository: favoritesRemoteRepository,
+            homeRemoteRepository: homeRemoteRepository,
+          ),
+        ),
+      ],
       child: const _LibraryView(),
     );
   }
@@ -47,6 +63,11 @@ class _LibraryViewState extends State<_LibraryView> {
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
+    // Load initial books and favorites after widget is initialized
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<LibraryCubit>().loadLibraryBooks(category: null);
+      context.read<FavoritesCubit>().loadFavorites();
+    });
   }
 
   @override
@@ -88,15 +109,9 @@ class _LibraryViewState extends State<_LibraryView> {
       context: context,
       builder: (BuildContext context) {
         return DeleteConfirmationDialog(
-          onConfirmed: () {
-            // Note: We need to implement delete functionality in LibraryCubit
-            // For now, we'll just show a snackbar
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Delete functionality needs to be implemented'),
-                backgroundColor: Colors.orange,
-              ),
-            );
+          onConfirmed: () async {
+            Navigator.of(context).pop(); // Close the dialog
+            await context.read<LibraryCubit>().deleteBook(bookId);
           },
         );
       },
@@ -188,26 +203,57 @@ class _LibraryViewState extends State<_LibraryView> {
                           await context
                               .read<LibraryCubit>()
                               .refreshLibraryBooks(category: _selectedCategory);
+                          // Also refresh favorites when refreshing books
+                          await context.read<FavoritesCubit>().loadFavorites();
                         },
                         child: ListView.builder(
+                          padding: EdgeInsets.symmetric(vertical: 10),
                           controller: _scrollController,
                           itemCount: state.books.length,
                           itemBuilder: (context, index) {
                             final book = state.books[index];
-                            return BookCard(
-                              title: book.title,
-                              author: book.createdBy,
-                              pages: book.totalPages,
-                              description: book.description,
-                              onDetailsPressed: () => context.push(
-                                '${AppRoutePaths.home}/book-details/${book.id}',
+                            final favoritesCubit = context
+                                .watch<FavoritesCubit>();
+                            final isFavorite = favoritesCubit.isFavorite(
+                              book.id,
+                            );
+                            final isUpdating =
+                                favoritesCubit.state is FavoritesUpdating &&
+                                (favoritesCubit.state as FavoritesUpdating)
+                                        .updatingBookId ==
+                                    book.id;
+
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 12.0),
+                              child: BookCard(
+                                title: book.title,
+                                pages: book.totalPages,
+                                description: book.description,
+                                imageUrl: book.image?.secureUrl,
+                                isFavorite: isFavorite,
+                                onFavoritePressed: isUpdating
+                                    ? null
+                                    : () {
+                                        if (isFavorite) {
+                                          context
+                                              .read<FavoritesCubit>()
+                                              .removeFromFavorites(book.id);
+                                        } else {
+                                          context
+                                              .read<FavoritesCubit>()
+                                              .addToFavorites(book.id);
+                                        }
+                                      },
+                                onDetailsPressed: () => context.push(
+                                  '${AppRoutePaths.home}/book-details/${book.id}',
+                                ),
+                                onEditPressed: () => context.push(
+                                  '${AppRoutePaths.library}/edit-book/${book.id}',
+                                ),
+                                onDeletePressed: () {
+                                  _showDeleteConfirmation(context, book.id);
+                                },
                               ),
-                              onEditPressed: () => context.push(
-                                '${AppRoutePaths.library}/edit-book/${book.id}',
-                              ),
-                              onDeletePressed: () {
-                                _showDeleteConfirmation(context, book.id);
-                              },
                             );
                           },
                         ),

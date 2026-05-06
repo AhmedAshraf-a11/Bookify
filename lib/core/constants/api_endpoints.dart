@@ -89,7 +89,7 @@ class ApiEndpoints {
       ApiConfig.uri(
         getBooksByCategory,
         queryParameters: {
-          'category': category,
+          if (category != null && category.isNotEmpty) 'category': category,
           if (page != null) 'page': page.toString(),
           if (limit != null) 'limit': limit.toString(),
         },

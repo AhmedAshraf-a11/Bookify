@@ -7,35 +7,26 @@ import 'api_exception.dart';
 import 'auth_session.dart';
 
 class ApiClient {
-  ApiClient({
-    required AuthSession session,
-    Dio? dio,
-  })  : _session = session,
-        _dio = dio ??
-            Dio(
-              BaseOptions(
-                baseUrl: ApiConfig.baseUrl,
-                connectTimeout: const Duration(seconds: 20),
-                receiveTimeout: const Duration(seconds: 20),
-                sendTimeout: const Duration(seconds: 20),
-                headers: const {
-                  'Accept': 'application/json',
-                },
-              ),
-            );
+  ApiClient({required AuthSession session, Dio? dio})
+    : _session = session,
+      _dio =
+          dio ??
+          Dio(
+            BaseOptions(
+              baseUrl: ApiConfig.baseUrl,
+              connectTimeout: const Duration(seconds: 20),
+              receiveTimeout: const Duration(seconds: 20),
+              sendTimeout: const Duration(seconds: 20),
+              headers: const {'Accept': 'application/json'},
+            ),
+          );
 
   final Dio _dio;
   final AuthSession _session;
 
-  Future<Map<String, dynamic>> get(
-    Uri uri, {
-    bool requiresAuth = true,
-  }) async {
+  Future<Map<String, dynamic>> get(Uri uri, {bool requiresAuth = true}) async {
     return _request(
-      () => _dio.getUri(
-        uri,
-        options: _options(requiresAuth: requiresAuth),
-      ),
+      () => _dio.getUri(uri, options: _options(requiresAuth: requiresAuth)),
     );
   }
 
@@ -91,9 +82,15 @@ class ApiClient {
     final formData = FormData.fromMap({
       ...fields,
       if (imagePath != null && imagePath.isNotEmpty)
-        'image': await MultipartFile.fromFile(imagePath, filename: _basename(imagePath)),
+        'image': await MultipartFile.fromFile(
+          imagePath,
+          filename: _basename(imagePath),
+        ),
       if (pdfPath != null && pdfPath.isNotEmpty)
-        'pdf': await MultipartFile.fromFile(pdfPath, filename: _basename(pdfPath)),
+        'pdf': await MultipartFile.fromFile(
+          pdfPath,
+          filename: _basename(pdfPath),
+        ),
     });
 
     return _request(
@@ -108,22 +105,21 @@ class ApiClient {
     );
   }
 
-  Options _options({
-    required bool requiresAuth,
-    String? contentType,
-  }) {
+  Options _options({required bool requiresAuth, String? contentType}) {
     final headers = <String, String>{};
     if (requiresAuth) {
       final token = _session.accessToken;
       if (token == null || token.isEmpty) {
         throw const ApiException(message: 'Access token is missing');
       }
-      headers['Authorization'] = 'bearer $token';
+      // Ensure token is properly formatted
+      final cleanToken = token.trim();
+      if (cleanToken.isEmpty) {
+        throw const ApiException(message: 'Access token is invalid');
+      }
+      headers['Authorization'] = 'bearer $cleanToken';
     }
-    return Options(
-      headers: headers,
-      contentType: contentType,
-    );
+    return Options(headers: headers, contentType: contentType);
   }
 
   Future<Map<String, dynamic>> _request(

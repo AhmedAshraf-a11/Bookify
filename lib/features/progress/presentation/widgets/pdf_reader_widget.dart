@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import '../../data/models/progress_models.dart';
-import '../bloc/reading_progress_cubit.dart';
+import '../cubit/reading_progress_cubit.dart';
 
 class PdfReaderWidget extends StatefulWidget {
   const PdfReaderWidget({

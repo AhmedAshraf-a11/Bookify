@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import '../../../../../core/app_repositories.dart';
+import '../../../../core/utils/app_repositories.dart';
 import '../../data/models/home_models.dart';
 
 // States

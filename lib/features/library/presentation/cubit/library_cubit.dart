@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
-import '../../../../../core/app_repositories.dart';
+import '../../../../core/utils/app_repositories.dart';
 import '../../../../../core/network/api_exception.dart';
 import '../../../../../core/network/auth_session.dart';
 import '../../../books/data/models/books_models.dart';
@@ -43,6 +43,15 @@ class RefreshLibraryBooks extends LibraryEvent {
 
   @override
   List<Object?> get props => [category];
+}
+
+class DeleteBook extends LibraryEvent {
+  final String bookId;
+
+  const DeleteBook({required this.bookId});
+
+  @override
+  List<Object?> get props => [bookId];
 }
 
 // States
@@ -95,11 +104,12 @@ class LibraryError extends LibraryState {
 
 // Cubit
 class LibraryCubit extends Cubit<LibraryState> {
-  LibraryCubit({required AuthSession authSession})
+  LibraryCubit({required AuthSession authSession, this.onFavoritesRefresh})
     : _authSession = authSession,
       super(LibraryInitial());
 
   final AuthSession _authSession;
+  final VoidCallback? onFavoritesRefresh;
 
   Future<void> loadLibraryBooks({
     String? category,
@@ -115,16 +125,32 @@ class LibraryCubit extends Cubit<LibraryState> {
     emit(LibraryLoading());
 
     try {
-      final categoryParam = category == 'All' ? null : category;
+      // Handle "All" category by calling getAllBooks method
+      if (category == 'All' || category == null) {
+        if (kDebugMode) {
+          print('Loading all books: page=$page, limit=$limit');
+        }
+        final response = await booksRemoteRepository.getAllBooks();
+        emit(
+          LibraryLoaded(
+            books: response.books,
+            hasMore: response.books.length == limit,
+            currentCategory: 'All',
+          ),
+        );
+        // Refresh favorites after loading books
+        onFavoritesRefresh?.call();
+        return;
+      }
 
       if (kDebugMode) {
         print(
-          'Loading library books: category=$categoryParam, page=$page, limit=$limit',
+          'Loading library books: category=$category, page=$page, limit=$limit',
         );
       }
 
       final response = await booksRemoteRepository.getBooksByCategory(
-        category: categoryParam,
+        category: category,
         page: page,
         limit: limit,
       );
@@ -140,6 +166,8 @@ class LibraryCubit extends Cubit<LibraryState> {
           currentCategory: category,
         ),
       );
+      // Refresh favorites after loading books
+      onFavoritesRefresh?.call();
     } on ApiException catch (e) {
       if (kDebugMode) {
         print('API Error loading library books: ${e.toString()}');
@@ -218,6 +246,9 @@ class LibraryCubit extends Cubit<LibraryState> {
       return;
     }
 
+    // Emit loading state for RefreshIndicator
+    emit(LibraryLoading());
+
     try {
       final categoryParam = category == 'All' ? null : category;
 
@@ -242,6 +273,8 @@ class LibraryCubit extends Cubit<LibraryState> {
           currentCategory: category,
         ),
       );
+      // Refresh favorites after refreshing books
+      onFavoritesRefresh?.call();
     } on ApiException catch (e) {
       if (kDebugMode) {
         print('API Error refreshing library books: ${e.toString()}');
@@ -254,6 +287,44 @@ class LibraryCubit extends Cubit<LibraryState> {
         print('Unexpected error refreshing library books: $e');
       }
       emit(LibraryError('Failed to refresh library books. Please try again.'));
+    }
+  }
+
+  Future<void> deleteBook(String bookId) async {
+    // Check authentication first
+    if (!_isAuthenticated()) {
+      emit(const LibraryError('Authentication required. Please log in again.'));
+      return;
+    }
+
+    try {
+      if (kDebugMode) {
+        print('Deleting book: $bookId');
+      }
+
+      await booksRemoteRepository.deleteBook(bookId);
+
+      if (kDebugMode) {
+        print('Successfully deleted book: $bookId');
+      }
+
+      // Refresh the books list after successful deletion
+      if (state is LibraryLoaded) {
+        final currentState = state as LibraryLoaded;
+        await refreshLibraryBooks(category: currentState.currentCategory);
+      }
+    } on ApiException catch (e) {
+      if (kDebugMode) {
+        print('API Error deleting book: ${e.toString()}');
+      }
+
+      String errorMessage = _getErrorMessage(e.statusCode);
+      emit(LibraryError(errorMessage));
+    } catch (e) {
+      if (kDebugMode) {
+        print('Unexpected error deleting book: $e');
+      }
+      emit(LibraryError('Failed to delete book. Please try again.'));
     }
   }
 
@@ -270,6 +341,8 @@ class LibraryCubit extends Cubit<LibraryState> {
 
   String _getErrorMessage(int? statusCode) {
     switch (statusCode) {
+      case 400:
+        return 'Invalid request. Please check your input and try again.';
       case 401:
         return 'Authentication required. Please log in again.';
       case 403:
@@ -281,7 +354,7 @@ class LibraryCubit extends Cubit<LibraryState> {
       case 0:
         return 'Network error. Please check your connection.';
       default:
-        return 'Failed to load books. Please try again.';
+        return 'Failed to load books (Error $statusCode). Please try again.';
     }
   }
 }
